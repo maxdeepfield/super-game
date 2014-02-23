@@ -1,0 +1,140 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <title>
+        Super Game
+    </title>
+    <style>
+        body {
+            text-align: center;
+        }
+        
+        .wrapper {
+            width: 500px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .btn:focus {
+            outline: none !important;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .play {
+            margin-top: 10px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            function pad(n, width, z) {
+                z = z || '0';
+                n = n + '';
+                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+            }
+
+            function get() {
+                $.get('/get', function (res) {
+                    $('.count').text(res.count);
+                }, 'json');
+            }
+
+            function getComments() {
+                $('.comments').empty();
+                $.get('/getComments', function (res) {
+                    var i;
+                    for (i = 0; i < res.comments.length; i++) {
+                        var d = new Date(res.comments[i].date);
+                        var date = pad(d.getDay(),2) + '/' + pad((d.getMonth() + 1),2) + '/' + d.getFullYear();
+                        date += ' ' + pad(d.getHours(),2) + ':' + pad(d.getMinutes(),2) + ':' + pad(d.getSeconds(),2);
+                        $('.comments').append('<blockquote><p>' + res.comments[i].text + '</p><footer><b> ' + res.comments[i].name + ' </b> ' + date + '</footer></blockquote>')
+                    }
+                }, 'json');
+            }
+
+            get();
+            getComments();
+
+            $('.play').click(function () {
+                $.get('/set', function () {
+                    get();
+                }, 'json');
+            });
+
+            $('.comment').click(function () {
+                var name = $('.name');
+                var text = $('.text');
+
+                if (!name.val().trim()) {
+                    $('.group-name').addClass('has-error');
+                } else {
+                    $('.group-name').removeClass('has-error');
+                }
+                if (!text.val().trim()) {
+                    $('.group-text').addClass('has-error');
+                } else {
+                    $('.group-text').removeClass('has-error');
+                }
+
+                if ($('.has-error').length) {
+                    return;
+                }
+
+                $('.comment').hide();
+                $('.loading').show();
+                $.get('/comment', {
+                    name: name.val(),
+                    text: text.val()
+                }, function () {
+                    $('.comment').show();
+                    $('.loading').hide();
+                    $('.name').val('');
+                    $('.text').val('');
+                    getComments();
+                }, 'json');
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+<h1 class="text-primary">Super Game</h1>
+
+<h3>Played: <span class="count"></span>x</h3>
+
+<button class="play btn btn-danger btn-lg">Play Now!</button>
+
+<hr/>
+
+<div class="wrapper">
+    <div class="form-group group-name">
+        <label class="control-label" for="name">Your name:</label>
+        <input type="text" class="name form-control" id="name">
+    </div>
+    <div class="form-group group-text">
+        <label class="control-label" for="text">Comment:</label>
+        <textarea style="height: 80px;" class="form-control text" id="text"></textarea>
+    </div>
+
+    <button class="comment btn btn-primary">Add comment</button>
+    <img src="img/loading.gif" class="loading" />
+</div>
+
+<hr />
+
+<div class="wrapper">
+    <div class="comments"></div>
+</div>
+
+</body>
+</html>
+

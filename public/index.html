@@ -53,7 +53,7 @@
                     var i;
                     for (i = 0; i < res.comments.length; i++) {
                         var d = new Date(res.comments[i].date);
-                        var date = pad(d.getDay(),2) + '/' + pad((d.getMonth() + 1),2) + '/' + d.getFullYear();
+                        var date = pad(d.getDate(),2) + '/' + pad((d.getMonth() + 1),2) + '/' + d.getFullYear();
                         date += ' ' + pad(d.getHours(),2) + ':' + pad(d.getMinutes(),2) + ':' + pad(d.getSeconds(),2);
                         $('.comments').append('<blockquote><p>' + res.comments[i].text + '</p><footer><b> ' + res.comments[i].name + ' </b> ' + date + '</footer></blockquote>')
                     }
